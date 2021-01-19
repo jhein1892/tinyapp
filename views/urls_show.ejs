@@ -14,20 +14,20 @@
     <div class="card-header"></div>
     <div class="card-body">
       <h5 class="card-title">TinyURL for: <%= longURL %></h5>
-      <p class="card-text">Short URL: <a href="/u/<%= shortURL %>"><%= shortURL %></a></p></br>
+      <p class="card-text">Short URL: <a href="/u/<%= shortURL %>"><%= shortURL %></a></p>
     
+    </br> 
+
       <form method="POST" action="/urls/<%= shortURL %>/update">
+        
         <lable for="longURL">Update URL:</lable>
         <input type="text" name="longURL" placeholder="Enter Updated URL"></input>
+        
         </br></br>
+
         <button type="submit" class="btn btn-outline-success btn-lg btn-block">Update</button>
+
       </form>
-
-    
-      
-
-        
-        
       <!-- <button type="button" class="btn btn-dark" href="##">Shorten URL:</button> -->
     </div>
     <div class="card-footer text-muted"></div>
