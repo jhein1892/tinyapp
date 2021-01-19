@@ -26,8 +26,8 @@
             <td><%= url %></td>
             <td><%= urls[url] %></td>
             <td>
-              <form method="POST" action="/urls/<%= url %>/">
-              <button type="button" class="btn btn-outline-success"href="/urls/<%= url %>/">Edit</button>
+              <form method="GET" action="/urls/<%= url %>/">
+              <button type="submit" class="btn btn-outline-success"href="/urls/<%= url %>/">Edit</button>
               </form>
             </td>
             <td>
@@ -39,7 +39,9 @@
         <% } %>
       </tbody>
     </table> 
-    <button type="button" class="btn btn-outline-success btn-lg btn-block" href="##">Shorten URL</button>
+    <form method="GET" action="urls/new">
+    <button type='submit' class="btn btn-outline-success btn-lg btn-block" href="/urls/new">Shorten URL</button>
+  </form>
     
   </main>
 
