@@ -1,32 +1,38 @@
 <header>
   <nav class="navbar navbar-expand-md navbar-dark bg-success">
-    <a class="navbar-brand" href="/urls">TinyApp</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+
+     <a class="navbar-brand" href="/urls">TinyApp</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse"      data-target="#navbarNavAltMarkup"
+      aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
-    </button>
+      </button>
+
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-      <div class="navbar-nav">
+
+      <ul class ="navbar-nav me-auto mb-2 mb-lg-0">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
-        <p>
-          <% if (myID !== undefined) { %>
-            <form method="POST" action="/logout">
-            <button type="submit" class="btn btn-danger">Logout</button>
-            </form>
-          <% } else if (myID === undefined) { %>
-            <form method ="GET" action="/login">
-              <button type="submit" class="btn btn-primary">Login</button>
-            </form>
-            <form method="GET" action="/register">
-              <button style="margin-left: 10px;" type="submit" class="btn btn-primary">Register</button>
-            </form>
-            <% } %>
-        </p>
       </div>
-    </div>
+      </ul>
+
+      
+        <% if (myID !== undefined) { %>
+      <div class="nav-item">
+          <h4> Logged in as Me </h4>
+        </div>
+
+        <form class="form-inline my-2 my-lg-0" method="POST" action="/logout">
+          <button type="submit" class="btn btn-danger">Logout</button>
+        </form>
+        <% } else if (myID === undefined) { %>
+        <form class="form-inline my-2 my-lg-0" method="GET" action="/login">
+          <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+        <form class="form-inline my-2 my-lg-0" method="GET" action="/register">
+          <button style="margin-left: 10px;" type="submit" class="btn btn-primary">Register</button>
+        </form>
+        <% } %>
+      </div>
+    </div> 
   </nav>
 </header>
-
-
-
-
