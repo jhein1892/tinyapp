@@ -22,14 +22,14 @@
         </tr>
       </thead>
       <tbody>
-        <% for(let url in urls) { %>
+        <% for(let url in URLS) { %>
           
           <tr>
             <td>
-              <%= url %>
+              <%= URLS[url].id %>
             </td>
             <td>
-              <%= urls[url] %>
+              <%= URLS[url].longURL %>
             </td>
             <td>
 
