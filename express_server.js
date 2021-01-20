@@ -155,7 +155,7 @@ app.post('/logout', (req,res) => {
   res.render('login', templateVars )
 })
 app.get("/u/:shortURL", (req, res) => {
-  res.redirect(urlDatabase[req.params.shortURL])
+  res.redirect(urlDatabase[req.params.shortURL].longURL)
 })
 app.get("/urls/new", (req, res) => {
   
