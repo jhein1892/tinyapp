@@ -10,14 +10,15 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
         <p>
           <% if (myID !== undefined) { %>
-          welcome <%= myID.email %>
-          <form method="POST" action="/logout">
-          <button type="submit" class="btn btn-danger">Logout</button>
-          </form>
+            <form method="POST" action="/logout">
+            <button type="submit" class="btn btn-danger">Logout</button>
+            </form>
           <% } else if (myID === undefined) { %>
-            <form method ="POST" action="/login">
+            <form method ="GET" action="/login">
               <button type="submit" class="btn btn-primary">Login</button>
-              <input type="text" name="username" placeholder="username">
+            </form>
+            <form method="GET" action="/register">
+              <button style="margin-left: 10px;" type="submit" class="btn btn-primary">Register</button>
             </form>
             <% } %>
         </p>
@@ -25,3 +26,7 @@
     </div>
   </nav>
 </header>
+
+
+
+
