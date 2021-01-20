@@ -91,8 +91,8 @@ app.get("/urls", (req, res) => {
   let user = req.cookies['user_id']
   let myID = users[user]
   let URLS = lookupURLs(user)
-  console.log(myID)
-  console.log("In the /urls", Object.keys(URLS))
+  // console.log(myID)
+  // console.log("In the /urls", Object.keys(URLS))
     const templateVars = {
       URLS,
       myID,
@@ -181,27 +181,49 @@ app.get("/urls/:shortURL", (req, res) => {
   let user = req.cookies['user_id']
   let myID = users[user]
   let myURL = lookupURLs(user)
-  // console.log("My URL", myURL.length)
-
-  // console.log(myURL[req.params.shortURL].longURL)
-  if (myURL.length === undefined){
-    res.status(404); 
-    res.send("This isn't your key!")
-  } else {
+  console.log(myURL.length)
+  if (Object.keys(myURL).includes(req.params.shortURL)) {
     const templateVars = {
       myID,
       shortURL: req.params.shortURL,
       longURL: myURL[req.params.shortURL].longURL
     };
     res.render('urls_show', templateVars);
+  } else {
+    res.status(404); 
+    res.send("This isn't your key!")
   }
-  
-  
+})
+app.get("/urls/:shortURL/delete", (req, res) => {
+  let user = req.cookies['user_id']
+  let myID = users[user]
+  let myURL = lookupURLs(user)
+  if (Object.keys(myURL).includes(req.params.shortURL)) {
+    delete urlDatabase[req.params.shortURL];
+    res.redirect("/urls");
+  } else {
+    res.sendStatus(403)
+  }
 })
 app.post("/urls/:shortURL/delete", (req, res) => {
   delete urlDatabase[req.params.shortURL];
   res.redirect("/urls");
 }) 
+app.get('/urls/:shortURL/update', (req,res) => {
+  let user = req.cookies['user_id']
+  let myID = users[user]
+  let myURL = lookupURLs(user)
+  if (Object.keys(myURL).includes(req.params.shortURL)) {
+    const templateVars = {
+      myID,
+      shortURL: req.params.shortURL,
+      longURL: myURL[req.params.shortURL].longURL
+    };
+    res.render('urls_show', templateVars)
+  } else {
+    res.sendStatus(403)
+  }
+})
 app.post('/urls/:shortURL/update', (req, res) => {
   urlDatabase[req.params.shortURL] = req.body.longURL
   res.redirect("/urls")
