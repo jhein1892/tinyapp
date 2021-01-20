@@ -5,8 +5,13 @@ const PORT = 8080; // default port 8080
 app.set("view engine", "ejs");
 const bcrypt = require("bcrypt");
 //setting up cookie parsing
-const cookieParser = require('cookie-parser')
+const cookieSession = require('cookie-session');
+// const cookieParser = require('cookie-parser')
 const bodyParser = require("body-parser");
+app.use(cookieSession({
+  name: 'session',
+  keys: ['key1']
+}))
 app.use(bodyParser.urlencoded({
   extended: true
 }));
@@ -75,7 +80,7 @@ function lookupURLs(userID){
   return myURLS;
 }
 
-app.use(cookieParser());
+// app.use(cookieParser());
 
 // Creating endpoints
 app.get("/", (req, res) => {
@@ -88,7 +93,7 @@ app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 app.get("/urls", (req, res) => {
-  let user = req.cookies['user_id']
+  let user = req.session.user_id
   let myID = users[user]
   let URLS = lookupURLs(user)
   // console.log(myID)
@@ -101,7 +106,7 @@ app.get("/urls", (req, res) => {
 
 });
 app.get('/login', (req, res) => {
-  let user = req.cookies['user_id']
+  req.session.user_id
   let myID = users[user]
   const templateVars = {
     myID,
@@ -127,16 +132,15 @@ app.post('/register', (req, res) => {
     email: req.body.email,
     password: bcrypt.hashSync(req.body.password, 10)
   } 
-  res.cookie("user_id", id)
+  req.session.user_id = lookupID(req.body.email, users)
   res.redirect('/urls');
   console.log("In register", users)
 })
 app.post("/login", (req, res) => {
   if (lookupID(req.body.email, users) !== false) {
     if (bcrypt.compareSync(req.body.password, users[lookupID(req.body.email, users)].password))
-    // if (users[lookupID(req.body.email, users)].password === req.body.password)
     {
-      res.cookie('user_id',lookupID(req.body.email, users));
+      req.session.user_id = lookupID(req.body.email, users)
       res.redirect('/urls');
     } else {
       res.sendStatus(403);
@@ -147,9 +151,8 @@ app.post("/login", (req, res) => {
 }) 
 app.post('/logout', (req,res) => {
   console.log("In logout", users)
-  res.clearCookie('user_id')
-  // res.cookie('user_id', req.body.id)
-  let user = req.cookies['user_id']
+  res.clearCookie(req.session.user_id)
+  let user = req.session.user_id
   let myID = users[user]
   const templateVars = {
     myID,
@@ -162,7 +165,7 @@ app.get("/u/:shortURL", (req, res) => {
 })
 app.get("/urls/new", (req, res) => {
   
-  let user = req.cookies['user_id']
+  let user = req.session.user_id
   let myID = users[user]
   console.log(user)
 
@@ -180,7 +183,7 @@ app.get("/urls/new", (req, res) => {
   
 });
 app.get("/urls/:shortURL", (req, res) => {
-  let user = req.cookies['user_id']
+  let user = req.session.user_id
   let myID = users[user]
   let myURL = lookupURLs(user)
   console.log(myURL.length)
@@ -197,7 +200,7 @@ app.get("/urls/:shortURL", (req, res) => {
   }
 })
 app.get("/urls/:shortURL/delete", (req, res) => {
-  let user = req.cookies['user_id']
+  let user = req.session.user_id
   let myID = users[user]
   let myURL = lookupURLs(user)
   if (Object.keys(myURL).includes(req.params.shortURL)) {
@@ -212,7 +215,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   res.redirect("/urls");
 }) 
 app.get('/urls/:shortURL/update', (req,res) => {
-  let user = req.cookies['user_id']
+  let user = req.session.user_id
   let myID = users[user]
   let myURL = lookupURLs(user)
   if (Object.keys(myURL).includes(req.params.shortURL)) {
@@ -233,8 +236,8 @@ app.post('/urls/:shortURL/update', (req, res) => {
 app.post("/urls", (req, res) => { 
   const shortURL = generateRandomString();
   let longURL = req.body.longURL
-  let user = req.cookies['user_id']
-  let myID = req.cookies['user_id']
+  // let user = req.cookies['user_id']
+  let myID = req.session.user_id
   urlDatabase[shortURL] ={
     longURL: req.body.longURL,
     userID: myID
