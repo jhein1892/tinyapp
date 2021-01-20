@@ -181,13 +181,22 @@ app.get("/urls/:shortURL", (req, res) => {
   let user = req.cookies['user_id']
   let myID = users[user]
   let myURL = lookupURLs(user)
-  console.log(myURL[req.params.shortURL].longURL)
-  const templateVars = {
-    myID,
-    shortURL: req.params.shortURL,
-    longURL: myURL[req.params.shortURL].longURL
-  };
-  res.render('urls_show', templateVars);
+  // console.log("My URL", myURL.length)
+
+  // console.log(myURL[req.params.shortURL].longURL)
+  if (myURL.length === undefined){
+    res.status(404); 
+    res.send("This isn't your key!")
+  } else {
+    const templateVars = {
+      myID,
+      shortURL: req.params.shortURL,
+      longURL: myURL[req.params.shortURL].longURL
+    };
+    res.render('urls_show', templateVars);
+  }
+  
+  
 })
 app.post("/urls/:shortURL/delete", (req, res) => {
   delete urlDatabase[req.params.shortURL];
