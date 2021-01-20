@@ -3,8 +3,8 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 app.set("view engine", "ejs");
-
-//setting up cokoie parsing
+const bcrypt = require("bcrypt");
+//setting up cookie parsing
 const cookieParser = require('cookie-parser')
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({
@@ -121,10 +121,11 @@ app.post('/register', (req, res) => {
   if (!lookupEmail(myEmail, users)){
     res.sendStatus(400)
   };
+  // const hashedPassword = bcrpyt.hashSync()
   users[id] = {
     id: id,
     email: req.body.email,
-    password: req.body.password
+    password: bcrypt.hashSync(req.body.password, 10)
   } 
   res.cookie("user_id", id)
   res.redirect('/urls');
@@ -132,7 +133,8 @@ app.post('/register', (req, res) => {
 })
 app.post("/login", (req, res) => {
   if (lookupID(req.body.email, users) !== false) {
-    if (users[lookupID(req.body.email, users)].password === req.body.password)
+    if (bcrypt.compareSync(req.body.password, users[lookupID(req.body.email, users)].password))
+    // if (users[lookupID(req.body.email, users)].password === req.body.password)
     {
       res.cookie('user_id',lookupID(req.body.email, users));
       res.redirect('/urls');
