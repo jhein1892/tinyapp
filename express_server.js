@@ -34,6 +34,15 @@ const users = {
 function generateRandomString() {
   return Math.floor((1 + Math.random()) * 0x100000).toString(16);
 }
+function lookupEmail(email, database){
+  let boolean = true; 
+  for (let user in database) {
+    if (database[user].email === email) {
+      return false;
+    }
+  };
+  return boolean;
+};
 app.use(cookieParser());
 
 // Creating endpoints
@@ -47,10 +56,11 @@ app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 app.get("/urls", (req, res) => {
-  let username = req.cookies['username']
+  let user = req.cookies['user_id']
+  let myID = users[user]
 
     const templateVars = {
-      username,
+      myID,
       urls: urlDatabase
     }
     res.render('urls_index', templateVars);
@@ -61,21 +71,30 @@ app.get('/register', (req, res) => {
 })
 app.post('/register', (req, res) => {
   let id = generateRandomString()
+  if (req.body.email === '' || req.body.password === ''){
+    res.sendStatus(400); 
+  };
+  let myEmail = req.body.email
+  if (!lookupEmail(myEmail, users)){
+    res.sendStatus(400)
+  };
   users[id] = {
     id: id,
     email: req.body.email,
     password: req.body.password
-  }
+  } 
+
   res.cookie("user_id", id)
   res.redirect('/urls');
   console.log(users)
 })
 app.post("/login", (req, res) => {
   res.cookie('username', req.body.username)
-  let username = req.body.username
+  let user = req.cookies['user_id']
+  let myID = users[user]
   
       const templateVars = {
-      username,
+      myID,
       urls: urlDatabase
     }
     res.render('urls_index', templateVars);
@@ -84,10 +103,10 @@ app.post("/login", (req, res) => {
 app.post('/logout', (req,res) => {
   res.clearCookie('username')
   res.cookie('username', req.body.username)
-  let username = req.body.username
-  delete req.cookies['username'];
+  let user = req.cookies['user_id']
+  let myID = users[user]
   const templateVars = {
-    username,
+    myID,
     urls: urlDatabase
   };
   res.render('urls_index', templateVars )
@@ -96,10 +115,11 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(urlDatabase[req.params.shortURL])
 })
 app.get("/urls/new", (req, res) => {
-  let username = req.cookies['username']
+  let user = req.cookies['user_id']
+  let myID = users[user]
 
   const templateVars = {
-    username,
+    myID,
     urls: urlDatabase
   }
   res.render("urls_new", templateVars);

@@ -9,12 +9,12 @@
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
         <p>
-          <% if (username !== undefined) { %>
-          welcome <%= username %>
+          <% if (myID !== undefined) { %>
+          welcome <%= myID.email %>
           <form method="POST" action="/logout">
           <button type="submit" class="btn btn-danger">Logout</button>
           </form>
-          <% } else if (username === undefined) { %>
+          <% } else if (myID === undefined) { %>
             <form method ="POST" action="/login">
               <button type="submit" class="btn btn-primary">Login</button>
               <input type="text" name="username" placeholder="username">
