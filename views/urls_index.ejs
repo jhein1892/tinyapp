@@ -12,6 +12,9 @@
   <%- include('partials/_header') %>
   <main style="margin: 1em;">
     <h3>My URLs</h3>
+    <% if (myID === undefined){ %>
+      <p>You aren't signed in</p>
+       <% } else { %>
     <table class="table">
       <thead>
         <tr>
@@ -50,12 +53,13 @@
         <% } %>
       </tbody>
     </table> 
+    
     <form method="GET" action="urls/new">
 
     <button type='submit' class="btn btn-outline-success btn-lg btn-block" href="/urls/new">Shorten URL
     </button>
   </form>
-     
+  <% } %>
   </main>
 
   <!-- Bootstrap JS -->

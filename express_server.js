@@ -91,6 +91,7 @@ app.get("/urls", (req, res) => {
   let user = req.cookies['user_id']
   let myID = users[user]
   let URLS = lookupURLs(user)
+  console.log(myID)
   console.log("In the /urls", Object.keys(URLS))
     const templateVars = {
       URLS,
