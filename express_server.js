@@ -43,6 +43,25 @@ function lookupEmail(email, database){
   };
   return boolean;
 };
+function lookupID(email, database){
+  let boolean = false; 
+  for (let user in database) {
+    if (database[user].email === email) {
+      return database[user].id
+    }
+  };
+  return boolean;
+}
+function lookupPassword(password, database) {
+  let boolean = false; 
+  for (let user in database) {
+    if (database[user].password === password) {
+      return true;
+    }
+  };
+  return boolean;
+}
+
 app.use(cookieParser());
 
 // Creating endpoints
@@ -92,30 +111,27 @@ app.post('/register', (req, res) => {
     email: req.body.email,
     password: req.body.password
   } 
-
   res.cookie("user_id", id)
   res.redirect('/urls');
-  console.log(users)
+  console.log("In register", users)
 })
 app.post("/login", (req, res) => {
-  
-  res.cookie('username', req.body.username)
-  let user = req.cookies['user_id']
-  let myID = users[user]
-
-  if (myID === undefined){
-    res.redirect('/register')
-    };
-
-  const templateVars = {
-      myID,
-      urls: urlDatabase
+  if (lookupID(req.body.email, users) !== false) {
+    if (users[lookupID(req.body.email, users)].password === req.body.password)
+    {
+      res.cookie('user_id',lookupID(req.body.email, users));
+      res.redirect('/urls');
+    } else {
+      res.sendStatus(403);
     }
-    res.render('urls_index', templateVars);
+  } else if (lookupID(req.body.email, users) === false) {
+    res.sendStatus(403);
+  }
 }) 
 app.post('/logout', (req,res) => {
-  res.clearCookie('username')
-  res.cookie('username', req.body.username)
+  console.log("In logout", users)
+  res.clearCookie('user_id')
+  // res.cookie('user_id', req.body.id)
   let user = req.cookies['user_id']
   let myID = users[user]
   const templateVars = {
@@ -159,10 +175,10 @@ app.post("/urls", (req, res) => {
   const short = generateRandomString();
   urlDatabase[short] = req.body.longURL;
   console.log(req.body); // Log the POST request body to the console
-  let username = req.cookies['username']
+  let user = req.cookies['user_id']
 
   const templateVars = {
-    username,
+    user,
     urls: urlDatabase
   }
   res.redirect(`/urls/${short}`)
