@@ -40,6 +40,9 @@ app.get("/urls", (req, res) => {
 // app.get("/login", (req, res) => {
 //   res.render('login')
 // })
+app.get('/register', (req, res) => {
+  res.render('register')
+})
 app.post("/login", (req, res) => {
   res.cookie('username', req.body.username)
   let username = req.body.username
@@ -66,7 +69,13 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(urlDatabase[req.params.shortURL])
 })
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  let username = req.cookies['username']
+
+  const templateVars = {
+    username,
+    urls: urlDatabase
+  }
+  res.render("urls_new", templateVars);
 });
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = {
@@ -79,7 +88,7 @@ app.get("/urls/:shortURL", (req, res) => {
 app.post("/urls/:shortURL/delete", (req, res) => {
   delete urlDatabase[req.params.shortURL];
   res.redirect("/urls");
-})
+}) 
 app.post('/urls/:shortURL/update', (req, res) => {
   urlDatabase[req.params.shortURL] = req.body.longURL
   res.redirect("/urls")
@@ -88,6 +97,12 @@ app.post("/urls", (req, res) => {
   const short = generateRandomString();
   urlDatabase[short] = req.body.longURL;
   console.log(req.body); // Log the POST request body to the console
+  let username = req.cookies['username']
+
+  const templateVars = {
+    username,
+    urls: urlDatabase
+  }
   res.redirect(`/urls/${short}`)
   res.render('urls_index', templateVars) // Respond with 'Ok' (we will replace this)
 });
@@ -95,4 +110,4 @@ app.post("/urls", (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
-});
+}); 

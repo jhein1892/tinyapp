@@ -14,7 +14,7 @@
           <form method="POST" action="/logout">
           <button type="submit" class="btn btn-danger">Logout</button>
           </form>
-          <% } else { %>
+          <% } else if (username === undefined) { %>
             <form method ="POST" action="/login">
               <button type="submit" class="btn btn-primary">Login</button>
               <input type="text" name="username" placeholder="username">
