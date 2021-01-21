@@ -72,7 +72,7 @@ app.get("/urls", (req, res) => {
   // console.log(myID)
   // console.log("In the /urls", Object.keys(URLS))
   const templateVars = {
-    id: users[myID].email,
+    
     URLS,
     myID,
   }

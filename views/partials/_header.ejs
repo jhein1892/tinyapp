@@ -12,13 +12,14 @@
       <ul class ="navbar-nav me-auto mb-2 mb-lg-0">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
-      </div>
-      </ul>
-
       
+      </ul>
+    </div>
+
+        
         <% if (myID !== undefined) { %>
       <div class="nav-item">
-          <h4> Logged in as <%= id %> </h4>
+          <h4 style="margin-right: 10px;"> Logged in as <%=myID.email %> </h4>
         </div>
 
         <form class="form-inline my-2 my-lg-0" method="POST" action="/logout">
