@@ -72,6 +72,7 @@ app.get("/urls", (req, res) => {
   // console.log(myID)
   // console.log("In the /urls", Object.keys(URLS))
   const templateVars = {
+    id: users[myID].email,
     URLS,
     myID,
   }
@@ -116,6 +117,7 @@ app.post("/login", (req, res) => {
       res.redirect('/urls');
     } else {
       res.sendStatus(403);
+      res.redirect('/register')
     }
   } else if (lookupID(req.body.email, users) === false) {
     res.sendStatus(403);
@@ -127,7 +129,7 @@ app.post('/logout', (req, res) => {
   const templateVars = {
     urls: urlDatabase
   };
-  res.render('login', templateVars)
+  res.redirect('/login', templateVars)
 })
 app.get("/u/:shortURL", (req, res) => {
 req.session.unique = {ID: generateRandomString(), Date: Date()};
@@ -216,14 +218,9 @@ app.put('/urls/:shortURL', (req, res) => {
     res.sendStatus(403)
   }
 })
-// app.put('/urls/:shortURL/update', (req, res) => {
-//   urlDatabase[req.params.shortURL] = req.body.longURL
-//   res.redirect("/urls")
-// })
 app.post("/urls", (req, res) => {
   const shortURL = generateRandomString();
   let longURL = req.body.longURL
-  // let user = req.cookies['user_id']
   let myID = req.session.user_id
   urlDatabase[shortURL] = {
     longURL: req.body.longURL,
@@ -232,12 +229,13 @@ app.post("/urls", (req, res) => {
     uniqueVisitors: {}
   };
   const templateVars = {
+    id: users[myID].email,
     shortURL,
     myID,
     longURL,
-    urls: urlDatabase
+    URLS: lookupURLs(myID, urlDatabase)
   }
-  res.render('urls_show', templateVars)
+  res.render('urls_index', templateVars)
   // res.render('urls_index', templateVars) // Respond with 'Ok' (we will replace this)
 });
 
