@@ -15,8 +15,8 @@ function lookupID(email, database){
   for (let user in database) {
     if (database[user].email === email) {
       return database[user].id
-    }
-  };
+    } 
+  }; 
   return boolean;
 }
 function lookupURLs(userID, database){
@@ -25,7 +25,8 @@ function lookupURLs(userID, database){
     if (database[url].userID === userID){
       myURLS[url] = {
         longURL: database[url].longURL,
-        id: url
+        id: url,
+        count: database[url].count
       }
     }
   }

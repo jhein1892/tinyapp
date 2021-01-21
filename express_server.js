@@ -30,11 +30,15 @@ app.use(bodyParser.urlencoded({
 const urlDatabase = {
   "b2xVn2": {
     longURL: "http://www.lighthouselabs.ca",
-    userID: "userRandomID"
+    userID: "userRandomID",
+    count: 0,
+    uniqueVisitors: {}
   },
   "9sm5xK": {
     longURL: "http://www.google.com",
-    userID: "user2RandomID"
+    userID: "user2RandomID",
+    count: 0,
+    uniqueVisitors: {}
   }
 };
 
@@ -115,7 +119,7 @@ app.post("/login", (req, res) => {
     }
   } else if (lookupID(req.body.email, users) === false) {
     res.sendStatus(403);
-  }
+  } 
 })
 app.post('/logout', (req, res) => {
   console.log("In logout", users)
@@ -126,7 +130,19 @@ app.post('/logout', (req, res) => {
   res.render('login', templateVars)
 })
 app.get("/u/:shortURL", (req, res) => {
+req.session.unique = {ID: generateRandomString(), Date: Date()};
+  console.log(req.session.unique.Date)
+let user = req.session.user_id
+let myID = users[user]
+let myURL = lookupURLs(user, urlDatabase)
+if (!Object.keys(myURL).includes(req.params.shortURL)){
+  urlDatabase[req.params.shortURL].uniqueVisitors[req.session.unique.ID] = req.session.unique
   res.redirect(urlDatabase[req.params.shortURL].longURL)
+  // console.log(urlDatabase[req.params.shortURL].uniqueVisitors[user])
+} else {
+  res.redirect(urlDatabase[req.params.shortURL].longURL)
+}
+ 
 })
 app.get("/urls/new", (req, res) => {
 
@@ -148,17 +164,22 @@ app.get("/urls/new", (req, res) => {
 
 });
 app.get("/urls/:shortURL", (req, res) => {
- 
   let user = req.session.user_id
   let myID = users[user]
   let myURL = lookupURLs(user, urlDatabase)
-  
+  let count =  myURL[req.params.shortURL].count
   if (Object.keys(myURL).includes(req.params.shortURL)) {
+    urlDatabase[req.params.shortURL].count += 1
+    console.log("Count", count);
+    console.log("UNique Visits", urlDatabase[req.params.shortURL].uniqueVisitors)
     const templateVars = {
       myID,
       shortURL: req.params.shortURL,
-      longURL: myURL[req.params.shortURL].longURL
+      longURL: myURL[req.params.shortURL].longURL,
+      count: count,
+      myVisitors: urlDatabase[req.params.shortURL].uniqueVisitors
     };
+    
     res.render('urls_show', templateVars);
   } else {
     res.status(404);
@@ -185,8 +206,11 @@ app.put('/urls/:shortURL', (req, res) => {
     const templateVars = {
       myID,
       shortURL: req.params.shortURL,
-      longURL: req.body.longURL
+      longURL: req.body.longURL,
+      count: myURL[req.params.shortURL].count,
+      myVisitors: urlDatabase[req.params.shortURL].uniqueVisitors
     };
+    
     res.render('urls_show', templateVars)
   } else {
     res.sendStatus(403)
@@ -203,7 +227,9 @@ app.post("/urls", (req, res) => {
   let myID = req.session.user_id
   urlDatabase[shortURL] = {
     longURL: req.body.longURL,
-    userID: myID
+    userID: myID,
+    count: 1,
+    uniqueVisitors: {}
   };
   const templateVars = {
     shortURL,

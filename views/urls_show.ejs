@@ -7,7 +7,7 @@
     integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
   <title>URL - TinyApp Example</title>
 </head>
-
+ 
 <body>
   <%- include('partials/_header') %>
   <div class="card text-center">
@@ -15,18 +15,40 @@
     <div class="card-body">
       <h5 class="card-title">TinyURL for:<a href="<%= longURL %>"><%= longURL %></a></h5>
       <p class="card-text">Short URL: <a href="/u/<%= shortURL %>"><%= shortURL %></a></p>
-      
-    </br> 
+      <p class="card-text">Number of Views: <%= count %></p>
+
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">User</th>
+            <th scope="col">Time Used</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for (let visit in myVisitors) { %>
+          <tr>
+            <td>
+              <p><%= myVisitors[visit].ID %></p>
+            </td>
+            <td>
+              <p><%= myVisitors[visit].Date %></p>
+            </td>
+          </tr>
+          <% } %>
+        </tbody>
+      </table>
+
+      </br>
 
       <form method="POST" action="/urls/<%= shortURL %>?_method=PUT">
-        
+
         <lable for="longURL">Update URL:</lable>
         <input type="text" name="longURL" placeholder="Enter Updated URL"></input>
-        
+
         </br></br>
 
         <button type="submit" class="btn btn-outline-success btn-lg btn-block">Update</button>
-          
+
       </form>
       <!-- <button type="button" class="btn btn-dark" href="##">Shorten URL:</button> -->
     </div>
