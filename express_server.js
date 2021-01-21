@@ -2,6 +2,7 @@
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
+const methodOverride = require('method-override');
 app.set("view engine", "ejs");
 const bcrypt = require("bcrypt");
 const {
@@ -10,14 +11,17 @@ const {
   lookupID,
   lookupURLs
 } = require('./helpers')
+ 
 //setting up cookie parsing
 const cookieSession = require('cookie-session');
-// const cookieParser = require('cookie-parser')
+
 const bodyParser = require("body-parser");
 app.use(cookieSession({
   name: 'session',
   keys: ['key1']
 }))
+
+app.use(methodOverride('_method'))
 app.use(bodyParser.urlencoded({
   extended: true
 }));
@@ -99,7 +103,6 @@ app.post('/register', (req, res) => {
   }
   req.session.user_id = lookupID(req.body.email, users)
   res.redirect('/urls');
-  console.log("In register", users)
 })
 app.post("/login", (req, res) => {
   if (lookupID(req.body.email, users) !== false) {
@@ -160,7 +163,7 @@ app.get("/urls/:shortURL", (req, res) => {
     res.send("This isn't your key!")
   }
 })
-app.get("/urls/:shortURL/delete", (req, res) => {
+app.delete("/urls/:shortURL", (req, res) => {
   let user = req.session.user_id
   let myID = users[user]
   let myURL = lookupURLs(user, urlDatabase)
@@ -171,11 +174,8 @@ app.get("/urls/:shortURL/delete", (req, res) => {
     res.sendStatus(403)
   }
 })
-app.post("/urls/:shortURL/delete", (req, res) => {
-  delete urlDatabase[req.params.shortURL];
-  res.redirect("/urls");
-})
-app.get('/urls/:shortURL/update', (req, res) => {
+
+app.put('/urls/:shortURL/update', (req, res) => {
   let user = req.session.user_id
   let myID = users[user]
   let myURL = lookupURLs(user, urlDatabase)
@@ -190,10 +190,10 @@ app.get('/urls/:shortURL/update', (req, res) => {
     res.sendStatus(403)
   }
 })
-app.post('/urls/:shortURL/update', (req, res) => {
-  urlDatabase[req.params.shortURL] = req.body.longURL
-  res.redirect("/urls")
-})
+// app.put('/urls/:shortURL/update', (req, res) => {
+//   urlDatabase[req.params.shortURL] = req.body.longURL
+//   res.redirect("/urls")
+// })
 app.post("/urls", (req, res) => {
   const shortURL = generateRandomString();
   let longURL = req.body.longURL
