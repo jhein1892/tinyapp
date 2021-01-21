@@ -76,6 +76,7 @@ app.get("/urls", (req, res) => {
 });
 app.get('/login', (req, res) => {
   req.session.user_id
+  let user = req.session.user_id
   let myID = users[user]
   const templateVars = {
     myID,
@@ -147,10 +148,11 @@ app.get("/urls/new", (req, res) => {
 
 });
 app.get("/urls/:shortURL", (req, res) => {
+ 
   let user = req.session.user_id
   let myID = users[user]
   let myURL = lookupURLs(user, urlDatabase)
-  console.log(myURL.length)
+  
   if (Object.keys(myURL).includes(req.params.shortURL)) {
     const templateVars = {
       myID,
@@ -174,16 +176,16 @@ app.delete("/urls/:shortURL", (req, res) => {
     res.sendStatus(403)
   }
 })
-
-app.put('/urls/:shortURL/update', (req, res) => {
+app.put('/urls/:shortURL', (req, res) => {
   let user = req.session.user_id
-  let myID = users[user]
+  let myID = users[req.session.user_id]
   let myURL = lookupURLs(user, urlDatabase)
   if (Object.keys(myURL).includes(req.params.shortURL)) {
+    urlDatabase[req.params.shortURL].longURL = req.body.longURL;
     const templateVars = {
       myID,
       shortURL: req.params.shortURL,
-      longURL: myURL[req.params.shortURL].longURL
+      longURL: req.body.longURL
     };
     res.render('urls_show', templateVars)
   } else {
