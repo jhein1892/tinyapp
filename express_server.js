@@ -235,9 +235,9 @@ app.post("/urls", (req, res) => {
     uniqueVisitors: {}
   };
   const templateVars = {
-    id: users[myID].email,
+    myID: users[myID],
     shortURL,
-    myID,
+    // myID,
     longURL,
     URLS: lookupURLs(myID, urlDatabase)
   };

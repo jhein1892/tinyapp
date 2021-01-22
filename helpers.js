@@ -26,7 +26,8 @@ function lookupURLs(userID, database){
       myURLS[url] = {
         longURL: database[url].longURL,
         id: url,
-        count: database[url].count
+        count: database[url].count,
+        uniqueVisitors: database[url].uniqueVisitors
       }
     }
   }
