@@ -104,12 +104,13 @@ app.get('/register', (req, res) => {
 app.post('/register', (req, res) => {
   let id = generateRandomString();
   if (req.body.email === '' || req.body.password === '') {
-    res.sendStatus(400);
+    res.send('Please make sure that password and email have both been filled out')
+    
   }
   let myEmail = req.body.email;
   if (!lookupEmail(myEmail, users)) {
-    res.sendStatus(400);
-  }
+    res.send('Email already in use!')
+  } 
   users[id] = {
     id: id,
     email: req.body.email,
