@@ -56,10 +56,6 @@ const users = {
 };
 
 // Creating endpoints
-
-// app.get("/urls.json", (req, res) => {
-//   res.json(urlDatabase);
-// });
 app.get("/urls", (req, res) => {
   let user = req.session.user_id
   let myID = users[user]
