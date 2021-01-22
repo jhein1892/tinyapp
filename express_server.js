@@ -34,13 +34,15 @@ const urlDatabase = {
     longURL: "http://www.lighthouselabs.ca",
     userID: "userRandomID",
     count: 0,
-    uniqueVisitors: {}
+    uniqueVisitors: {},
+    uniqueCount: 0
   },
   "9sm5xK": {
     longURL: "http://www.google.com",
     userID: "user2RandomID",
     count: 0,
-    uniqueVisitors: {}
+    uniqueVisitors: {},
+    uniqueCount: 0
   }
 };
 
@@ -135,23 +137,45 @@ app.post("/login", (req, res) => {
 });
 // Logout route
 app.post('/logout', (req, res) => {
+  req.sessions.user_id = null; 
   res.redirect('/login');
 });
 // Re-routes client to longURL, and tracks unique visitors to be displayed
-app.get("/u/:shortURL", (req, res) => {
-  // Creates a cookie with a random ID and an associate date
-  req.session.unique = {ID: generateRandomString(), Date: Date()};
-  let user = req.session.user_id;
-  let myURL = lookupURLs(user, urlDatabase);
-  // if the url isn's associated with the user
-  if (!Object.keys(myURL).includes(req.params.shortURL)) {
-    // adding the cookie object uniqueVisitors object in urlDatabase
-    urlDatabase[req.params.shortURL].uniqueVisitors[req.session.unique.ID] = req.session.unique;
+  app.get("/u/:shortURL", (req, res) => {
+    let user = req.session.user_id;
+    let myURL = lookupURLs(user, urlDatabase);
+    urlDatabase[req.params.shortURL].count += 1;
+    // if we dont have a user
+    if (user === undefined) {
+      req.session.unique = {
+        ID: generateRandomString(),
+        Date: Date()
+      };
+      urlDatabase[req.params.shortURL].uniqueCount += 1;
+      urlDatabase[req.params.shortURL].uniqueVisitors[req.session.unique.ID] = req.session.unique;
+      // if we have a user
+    } else {
+      // if the user has never been to this page before
+      if (!Object.keys(urlDatabase[req.params.shortURL].uniqueVisitors).includes(req.session.unique.ID)) {
+        req.session.unique = {
+          ID: user,
+          Date: Date()
+        };
+        urlDatabase[req.params.shortURL].uniqueCount += 1;
+        urlDatabase[req.params.shortURL].uniqueVisitors[req.session.unique.ID] = req.session.unique;
+        // if the user has used this link before
+      } else if (Object.keys(urlDatabase[req.params.shortURL].uniqueVisitors).includes(req.session.unique.ID)) {
+        req.session.unique = {
+          ID: user,
+          Date: Date()
+        };
+        // generating random ID here so that I can separate the differnt requests from the same user, and give time log for each
+        urlDatabase[req.params.shortURL].uniqueVisitors[req.session.unique.ID + "ID:" + generateRandomString()] = req.session.unique;
+      }
+    };
+  
     res.redirect(urlDatabase[req.params.shortURL].longURL);
-  } else {
-    res.redirect(urlDatabase[req.params.shortURL].longURL);
-  }
-});
+  });
 // When creating a new ShortURL
 app.get("/urls/new", (req, res) => {
   let user = req.session.user_id;
@@ -172,16 +196,17 @@ app.get("/urls/:shortURL", (req, res) => {
   let myID = users[user];
   let myURL = lookupURLs(user, urlDatabase);
   let count =  myURL[req.params.shortURL].count;
+  console.log("uniqueCount",)
   // if the user owns the short URL
   if (Object.keys(myURL).includes(req.params.shortURL)) {
     // increase the amount of times that page has been viewed
-    urlDatabase[req.params.shortURL].count += 1;
     const templateVars = {
       myID,
       shortURL: req.params.shortURL,
       longURL: myURL[req.params.shortURL].longURL,
       count: count,
-      myVisitors: urlDatabase[req.params.shortURL].uniqueVisitors
+      myVisitors: urlDatabase[req.params.shortURL].uniqueVisitors,
+      uniqueCount: urlDatabase[req.params.shortURL].uniqueCount
     };    
     res.render('urls_show', templateVars);
   } else {
@@ -207,6 +232,7 @@ app.put('/urls/:shortURL', (req, res) => {
   let user = req.session.user_id;
   let myID = users[req.session.user_id];
   let myURL = lookupURLs(user, urlDatabase);
+  
   // if the user owns the shortURL
   if (Object.keys(myURL).includes(req.params.shortURL)) {
     // edit the assigned longURL
@@ -216,7 +242,8 @@ app.put('/urls/:shortURL', (req, res) => {
       shortURL: req.params.shortURL,
       longURL: req.body.longURL,
       count: myURL[req.params.shortURL].count,
-      myVisitors: urlDatabase[req.params.shortURL].uniqueVisitors
+      myVisitors: urlDatabase[req.params.shortURL].uniqueVisitors,
+      uniqueCount: urlDatabase[req.params.shortURL].uniqueCount
     };
     res.render('urls_show', templateVars);
   } else {
@@ -231,8 +258,9 @@ app.post("/urls", (req, res) => {
   urlDatabase[shortURL] = {
     longURL: req.body.longURL,
     userID: myID,
-    count: 1,
-    uniqueVisitors: {}
+    count: 0,
+    uniqueVisitors: {},
+    uniqueCount: 0
   };
   const templateVars = {
     myID: users[myID],
