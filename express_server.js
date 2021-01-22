@@ -12,19 +12,21 @@ const {
   lookupURLs
 } = require('./helpers');
  
-//setting up cookie parsing
+//Allows for Cookies
 const cookieSession = require('cookie-session');
-
-const bodyParser = require("body-parser");
 app.use(cookieSession({
   name: 'session',
   keys: ['key1']
 }));
 
-app.use(methodOverride('_method'));
+
+const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({
   extended: true
 }));
+
+// Allows for using methods apart from GET and POST
+app.use(methodOverride('_method'));
 
 // Objects that are used
 const urlDatabase = {
@@ -56,6 +58,7 @@ const users = {
 };    
  
 // Creating endpoints
+
 // Redirects to home page if user has account, or to login if there isn't one on file
 app.get("/", (req, res) => {
   if (req.session.user_id) {
@@ -108,7 +111,7 @@ app.post('/register', (req, res) => {
   users[id] = {
     id: id,
     email: req.body.email,
-    password: bcrypt.hashSync(req.body.password, 10)
+    password: bcrypt.hashSync(req.body.password, 10) // hashing Password
   };
   req.session.user_id = lookupID(req.body.email, users);
   res.redirect('/urls');
@@ -116,14 +119,17 @@ app.post('/register', (req, res) => {
 // when entering credientals for login page
 app.post("/login", (req, res) => {
   if (lookupID(req.body.email, users) !== false) {
+    // Comparing password with one on file (which is encrypted)
     if (bcrypt.compareSync(req.body.password, users[lookupID(req.body.email, users)].password)) {
       req.session.user_id = lookupID(req.body.email, users);
       res.redirect('/urls');
     } else {
+      // if the password is wrong
       res.sendStatus(403);
       res.redirect('/register');
     }
   } else if (lookupID(req.body.email, users) === false) {
+    // if we don't have record of the email
     res.sendStatus(403);
   }
 });
@@ -133,10 +139,13 @@ app.post('/logout', (req, res) => {
 });
 // Re-routes client to longURL, and tracks unique visitors to be displayed
 app.get("/u/:shortURL", (req, res) => {
+  // Creates a cookie with a random ID and an associate date
   req.session.unique = {ID: generateRandomString(), Date: Date()};
   let user = req.session.user_id;
   let myURL = lookupURLs(user, urlDatabase);
+  // if the url isn's associated with the user
   if (!Object.keys(myURL).includes(req.params.shortURL)) {
+    // adding the cookie object uniqueVisitors object in urlDatabase
     urlDatabase[req.params.shortURL].uniqueVisitors[req.session.unique.ID] = req.session.unique;
     res.redirect(urlDatabase[req.params.shortURL].longURL);
   } else {
@@ -163,7 +172,9 @@ app.get("/urls/:shortURL", (req, res) => {
   let myID = users[user];
   let myURL = lookupURLs(user, urlDatabase);
   let count =  myURL[req.params.shortURL].count;
+  // if the user owns the short URL
   if (Object.keys(myURL).includes(req.params.shortURL)) {
+    // increase the amount of times that page has been viewed
     urlDatabase[req.params.shortURL].count += 1;
     const templateVars = {
       myID,
@@ -182,7 +193,9 @@ app.get("/urls/:shortURL", (req, res) => {
 app.delete("/urls/:shortURL", (req, res) => {
   let user = req.session.user_id;
   let myURL = lookupURLs(user, urlDatabase);
+  //if user is the owner of that shortURL
   if (Object.keys(myURL).includes(req.params.shortURL)) {
+    // delete the shortURL
     delete urlDatabase[req.params.shortURL];
     res.redirect("/urls");
   } else {
@@ -194,7 +207,9 @@ app.put('/urls/:shortURL', (req, res) => {
   let user = req.session.user_id;
   let myID = users[req.session.user_id];
   let myURL = lookupURLs(user, urlDatabase);
+  // if the user owns the shortURL
   if (Object.keys(myURL).includes(req.params.shortURL)) {
+    // edit the assigned longURL
     urlDatabase[req.params.shortURL].longURL = req.body.longURL;
     const templateVars = {
       myID,
