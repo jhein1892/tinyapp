@@ -10,7 +10,7 @@ const {
   lookupEmail,
   lookupID,
   lookupURLs
-} = require('./helpers')
+} = require('./helpers');
  
 //setting up cookie parsing
 const cookieSession = require('cookie-session');
@@ -19,9 +19,9 @@ const bodyParser = require("body-parser");
 app.use(cookieSession({
   name: 'session',
   keys: ['key1']
-}))
+}));
 
-app.use(methodOverride('_method'))
+app.use(methodOverride('_method'));
 app.use(bodyParser.urlencoded({
   extended: true
 }));
@@ -53,156 +53,135 @@ const users = {
     email: "user2@example.com",
     password: "dishwasher-funk"
   }
-};
+};    
 
 // Creating endpoints
 app.get("/", (req, res) => {
-  if (req.session.user_id){
-    res.redirect('/urls')
+  if (req.session.user_id) {
+    res.redirect('/urls');
   } else {
-    res.redirect('/login')
+    res.redirect('/login');
   }
-})
+});
 app.get("/urls", (req, res) => {
-  let user = req.session.user_id
-  let myID = users[user]
-  let URLS = lookupURLs(user, urlDatabase)
-  // console.log(myID)
-  // console.log("In the /urls", Object.keys(URLS))
-  const templateVars = {
-    
+  let user = req.session.user_id;
+  let myID = users[user];
+  let URLS = lookupURLs(user, urlDatabase);
+  const templateVars = { 
     URLS,
     myID,
-  }
+  };
   res.render('urls_index', templateVars);
-
 });
 app.get('/login', (req, res) => {
-  req.session.user_id
-  let user = req.session.user_id
-  let myID = users[user]
+  let user = req.session.user_id;
+  let myID = users[user];
   const templateVars = {
     myID,
     urls: urlDatabase
-  }
-  res.render('login', templateVars)
-})
+  };
+  res.render('login', templateVars);
+});
 app.get('/register', (req, res) => {
-  req.session.user_id
-  let user = req.session.user_id
-  let myID = users[user]
+  let user = req.session.user_id;
+  let myID = users[user];
   const templateVars = {
     myID,
     urls: urlDatabase
-  }
-  res.render('register', templateVars)
-})
+  };
+  res.render('register', templateVars);
+});
 app.post('/register', (req, res) => {
-  let id = generateRandomString()
+  let id = generateRandomString();
   if (req.body.email === '' || req.body.password === '') {
     res.sendStatus(400);
-  };
-  let myEmail = req.body.email
+  }
+  let myEmail = req.body.email;
   if (!lookupEmail(myEmail, users)) {
-    res.sendStatus(400)
-  };
-  // const hashedPassword = bcrpyt.hashSync()
+    res.sendStatus(400);
+  }
   users[id] = {
     id: id,
     email: req.body.email,
     password: bcrypt.hashSync(req.body.password, 10)
-  }
-  req.session.user_id = lookupID(req.body.email, users)
+  };
+  req.session.user_id = lookupID(req.body.email, users);
   res.redirect('/urls');
-})
+});
 app.post("/login", (req, res) => {
   if (lookupID(req.body.email, users) !== false) {
     if (bcrypt.compareSync(req.body.password, users[lookupID(req.body.email, users)].password)) {
-      req.session.user_id = lookupID(req.body.email, users)
+      req.session.user_id = lookupID(req.body.email, users);
       res.redirect('/urls');
     } else {
       res.sendStatus(403);
-      res.redirect('/register')
+      res.redirect('/register');
     }
   } else if (lookupID(req.body.email, users) === false) {
     res.sendStatus(403);
-  } 
-})
+  }
+});
 app.post('/logout', (req, res) => {
-  res.redirect('/login')
-})
+  res.redirect('/login');
+});
 app.get("/u/:shortURL", (req, res) => {
-req.session.unique = {ID: generateRandomString(), Date: Date()};
-  console.log(req.session.unique.Date)
-let user = req.session.user_id
-let myID = users[user]
-let myURL = lookupURLs(user, urlDatabase)
-if (!Object.keys(myURL).includes(req.params.shortURL)){
-  urlDatabase[req.params.shortURL].uniqueVisitors[req.session.unique.ID] = req.session.unique
-  res.redirect(urlDatabase[req.params.shortURL].longURL)
-  // console.log(urlDatabase[req.params.shortURL].uniqueVisitors[user])
-} else {
-  res.redirect(urlDatabase[req.params.shortURL].longURL)
-}
- 
-})
+  req.session.unique = {ID: generateRandomString(), Date: Date()};
+  let user = req.session.user_id;
+  let myURL = lookupURLs(user, urlDatabase);
+  if (!Object.keys(myURL).includes(req.params.shortURL)) {
+    urlDatabase[req.params.shortURL].uniqueVisitors[req.session.unique.ID] = req.session.unique;
+    res.redirect(urlDatabase[req.params.shortURL].longURL);
+  } else {
+    res.redirect(urlDatabase[req.params.shortURL].longURL);
+  }
+});
 app.get("/urls/new", (req, res) => {
-
-  let user = req.session.user_id
-  let myID = users[user]
-  console.log(user)
-
+  let user = req.session.user_id;
+  let myID = users[user];
   const templateVars = {
     myID,
     urls: urlDatabase
-  }
+  };
   if (user === undefined) {
     res.redirect("/login");
   } else {
     res.render("urls_new", templateVars);
   }
-
-
-
 });
 app.get("/urls/:shortURL", (req, res) => {
-  let user = req.session.user_id
-  let myID = users[user]
-  let myURL = lookupURLs(user, urlDatabase)
-  let count =  myURL[req.params.shortURL].count
+  let user = req.session.user_id;
+  let myID = users[user];
+  let myURL = lookupURLs(user, urlDatabase);
+  let count =  myURL[req.params.shortURL].count;
   if (Object.keys(myURL).includes(req.params.shortURL)) {
-    urlDatabase[req.params.shortURL].count += 1
-    console.log("Count", count);
-    console.log("UNique Visits", urlDatabase[req.params.shortURL].uniqueVisitors)
+    urlDatabase[req.params.shortURL].count += 1;
     const templateVars = {
       myID,
       shortURL: req.params.shortURL,
       longURL: myURL[req.params.shortURL].longURL,
       count: count,
       myVisitors: urlDatabase[req.params.shortURL].uniqueVisitors
-    };
-    
+    };    
     res.render('urls_show', templateVars);
   } else {
     res.status(404);
-    res.send("This isn't your key!")
+    res.send("This isn't your key!");
   }
-})
+});
 app.delete("/urls/:shortURL", (req, res) => {
-  let user = req.session.user_id
-  let myID = users[user]
-  let myURL = lookupURLs(user, urlDatabase)
+  let user = req.session.user_id;
+  let myURL = lookupURLs(user, urlDatabase);
   if (Object.keys(myURL).includes(req.params.shortURL)) {
     delete urlDatabase[req.params.shortURL];
     res.redirect("/urls");
   } else {
-    res.sendStatus(403)
+    res.sendStatus(403);
   }
-})
+});
 app.put('/urls/:shortURL', (req, res) => {
-  let user = req.session.user_id
-  let myID = users[req.session.user_id]
-  let myURL = lookupURLs(user, urlDatabase)
+  let user = req.session.user_id;
+  let myID = users[req.session.user_id];
+  let myURL = lookupURLs(user, urlDatabase);
   if (Object.keys(myURL).includes(req.params.shortURL)) {
     urlDatabase[req.params.shortURL].longURL = req.body.longURL;
     const templateVars = {
@@ -212,16 +191,15 @@ app.put('/urls/:shortURL', (req, res) => {
       count: myURL[req.params.shortURL].count,
       myVisitors: urlDatabase[req.params.shortURL].uniqueVisitors
     };
-    
-    res.render('urls_show', templateVars)
-  } else { 
-    res.sendStatus(403)
+    res.render('urls_show', templateVars);
+  } else {
+    res.sendStatus(403);
   }
-})
+});
 app.post("/urls", (req, res) => {
   const shortURL = generateRandomString();
-  let longURL = req.body.longURL
-  let myID = req.session.user_id
+  let longURL = req.body.longURL;
+  let myID = req.session.user_id;
   urlDatabase[shortURL] = {
     longURL: req.body.longURL,
     userID: myID,
@@ -234,14 +212,14 @@ app.post("/urls", (req, res) => {
     myID,
     longURL,
     URLS: lookupURLs(myID, urlDatabase)
-  }
-  res.render('urls_index', templateVars)
+  };
+  res.render('urls_index', templateVars);
   // res.render('urls_index', templateVars) // Respond with 'Ok' (we will replace this)
 });
 app.get("*", (req, res) => {
   res.redirect("/login");
-})
+});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
-});console
+}); console;
