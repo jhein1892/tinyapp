@@ -54,15 +54,17 @@ const users = {
     password: "dishwasher-funk"
   }
 };    
-
+ 
 // Creating endpoints
+// Redirects to home page if user has account, or to login if there isn't one on file
 app.get("/", (req, res) => {
   if (req.session.user_id) {
     res.redirect('/urls');
   } else {
-    res.redirect('/login');
+    res.redirect('/register');
   }
 });
+// Generates home page with list of shortened URLs by user
 app.get("/urls", (req, res) => {
   let user = req.session.user_id;
   let myID = users[user];
@@ -73,6 +75,7 @@ app.get("/urls", (req, res) => {
   };
   res.render('urls_index', templateVars);
 });
+// Login page
 app.get('/login', (req, res) => {
   let user = req.session.user_id;
   let myID = users[user];
@@ -82,6 +85,7 @@ app.get('/login', (req, res) => {
   };
   res.render('login', templateVars);
 });
+// when being directed tp Registration page
 app.get('/register', (req, res) => {
   let user = req.session.user_id;
   let myID = users[user];
@@ -91,6 +95,7 @@ app.get('/register', (req, res) => {
   };
   res.render('register', templateVars);
 });
+// When submitting email and password on registration page
 app.post('/register', (req, res) => {
   let id = generateRandomString();
   if (req.body.email === '' || req.body.password === '') {
@@ -108,6 +113,7 @@ app.post('/register', (req, res) => {
   req.session.user_id = lookupID(req.body.email, users);
   res.redirect('/urls');
 });
+// when entering credientals for login page
 app.post("/login", (req, res) => {
   if (lookupID(req.body.email, users) !== false) {
     if (bcrypt.compareSync(req.body.password, users[lookupID(req.body.email, users)].password)) {
@@ -121,9 +127,11 @@ app.post("/login", (req, res) => {
     res.sendStatus(403);
   }
 });
+// Logout route
 app.post('/logout', (req, res) => {
   res.redirect('/login');
 });
+// Re-routes client to longURL, and tracks unique visitors to be displayed
 app.get("/u/:shortURL", (req, res) => {
   req.session.unique = {ID: generateRandomString(), Date: Date()};
   let user = req.session.user_id;
@@ -135,6 +143,7 @@ app.get("/u/:shortURL", (req, res) => {
     res.redirect(urlDatabase[req.params.shortURL].longURL);
   }
 });
+// When creating a new ShortURL
 app.get("/urls/new", (req, res) => {
   let user = req.session.user_id;
   let myID = users[user];
@@ -148,6 +157,7 @@ app.get("/urls/new", (req, res) => {
     res.render("urls_new", templateVars);
   }
 });
+// Renders page where user can see stats on shortURL, and edit it
 app.get("/urls/:shortURL", (req, res) => {
   let user = req.session.user_id;
   let myID = users[user];
@@ -168,6 +178,7 @@ app.get("/urls/:shortURL", (req, res) => {
     res.send("This isn't your key!");
   }
 });
+// Will delete a shortURL
 app.delete("/urls/:shortURL", (req, res) => {
   let user = req.session.user_id;
   let myURL = lookupURLs(user, urlDatabase);
@@ -178,6 +189,7 @@ app.delete("/urls/:shortURL", (req, res) => {
     res.sendStatus(403);
   }
 });
+// Will edit a particular shortURL
 app.put('/urls/:shortURL', (req, res) => {
   let user = req.session.user_id;
   let myID = users[req.session.user_id];
@@ -196,6 +208,7 @@ app.put('/urls/:shortURL', (req, res) => {
     res.sendStatus(403);
   }
 });
+// Generates home page while updating the database
 app.post("/urls", (req, res) => {
   const shortURL = generateRandomString();
   let longURL = req.body.longURL;
@@ -214,8 +227,8 @@ app.post("/urls", (req, res) => {
     URLS: lookupURLs(myID, urlDatabase)
   };
   res.render('urls_index', templateVars);
-  // res.render('urls_index', templateVars) // Respond with 'Ok' (we will replace this)
 });
+// Catch route, will redirect anything that isn't previously specified to login page
 app.get("*", (req, res) => {
   res.redirect("/login");
 });
