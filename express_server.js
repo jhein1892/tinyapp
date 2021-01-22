@@ -127,21 +127,22 @@ app.post("/login", (req, res) => {
       res.redirect('/urls');
     } else {
       // if the password is wrong
-      res.sendStatus(403);
-      res.redirect('/register');
+      res.send("Not the right Email, or Password");
+      // res.redirect('/register'); 
     }
   } else if (lookupID(req.body.email, users) === false) {
     // if we don't have record of the email
-    res.sendStatus(403);
+    res.send("Not the right Email, or Password")
+    
   }
 });
 // Logout route
 app.post('/logout', (req, res) => {
-  req.sessions.user_id = null; 
+  req.session = null; 
   res.redirect('/login');
 });
 // Re-routes client to longURL, and tracks unique visitors to be displayed
-  app.get("/u/:shortURL", (req, res) => {
+app.get("/u/:shortURL", (req, res) => {
     let user = req.session.user_id;
     let myURL = lookupURLs(user, urlDatabase);
     urlDatabase[req.params.shortURL].count += 1;
