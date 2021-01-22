@@ -10,23 +10,24 @@
     <title>TinyApp</title>
   </head>
 
-  <body  style="margin: 15% 24%; padding: 0% 18%; background-color: #28a745;" >
-    <div>
+  <body>
+    <%- include('partials/_header') %>
+    <div style="margin-left: 20px; margin-top: 15px;">
       <h1>Login</h1>
     </div>
-    <div>
+    <div style="margin-left: 20px;">
     <form method="POST" action="/login">
       <label for='email'>Enter Email</label>
     </br>
-      <input class="form-control" type="email" name="email" placeholder="email">
+      <input style="max-width: 150px;" class="form-control" type="email" name="email" placeholder="email">
     </br>
       <label for='email'>Enter Password</label>
   </br>
-      <input class="form-control" type="password" name="password" placeholder="password">
+      <input style="max-width: 150px;" class="form-control" type="password" name="password" placeholder="password">
   </br>
     </div>
     <div style="margin-left: 40px;">
-      <button class="btn btn-outline-dark">Login</button>
+      <button class="btn btn-primary">Login</button>
     </div>
     </form>
   

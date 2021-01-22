@@ -16,9 +16,9 @@ function lookupID(email, database){
     if (database[user].email === email) {
       return database[user].id
     } 
-  }; 
+  };  
   return boolean;
-}
+};
 function lookupURLs(userID, database){
   let myURLS = {}
   for (let url in database){
@@ -31,7 +31,7 @@ function lookupURLs(userID, database){
     }
   }
   return myURLS;
-}
+};
 
 module.exports = {
   generateRandomString,
