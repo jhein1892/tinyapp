@@ -56,15 +56,10 @@ const users = {
 };
 
 // Creating endpoints
-app.get("/", (req, res) => {
-  res.send("Hello!");
-});
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
+
+// app.get("/urls.json", (req, res) => {
+//   res.json(urlDatabase);
+// });
 app.get("/urls", (req, res) => {
   let user = req.session.user_id
   let myID = users[user]
@@ -90,7 +85,14 @@ app.get('/login', (req, res) => {
   res.render('login', templateVars)
 })
 app.get('/register', (req, res) => {
-  res.render('register')
+  req.session.user_id
+  let user = req.session.user_id
+  let myID = users[user]
+  const templateVars = {
+    myID,
+    urls: urlDatabase
+  }
+  res.render('register', templateVars)
 })
 app.post('/register', (req, res) => {
   let id = generateRandomString()
@@ -124,12 +126,7 @@ app.post("/login", (req, res) => {
   } 
 })
 app.post('/logout', (req, res) => {
-  console.log("In logout", users)
-  req.session = null
-  const templateVars = {
-    urls: urlDatabase
-  };
-  res.redirect('/login', templateVars)
+  res.redirect('/login')
 })
 app.get("/u/:shortURL", (req, res) => {
 req.session.unique = {ID: generateRandomString(), Date: Date()};
@@ -238,8 +235,10 @@ app.post("/urls", (req, res) => {
   res.render('urls_index', templateVars)
   // res.render('urls_index', templateVars) // Respond with 'Ok' (we will replace this)
 });
-
+app.get("*", (req, res) => {
+  res.redirect("/login");
+})
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
-});
+});console
