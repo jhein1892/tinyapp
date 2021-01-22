@@ -56,6 +56,13 @@ const users = {
 };
 
 // Creating endpoints
+app.get("/", (req, res) => {
+  if (req.session.user_id){
+    res.redirect('/urls')
+  } else {
+    res.redirect('/login')
+  }
+})
 app.get("/urls", (req, res) => {
   let user = req.session.user_id
   let myID = users[user]
@@ -207,7 +214,7 @@ app.put('/urls/:shortURL', (req, res) => {
     };
     
     res.render('urls_show', templateVars)
-  } else {
+  } else { 
     res.sendStatus(403)
   }
 })
